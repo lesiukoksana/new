@@ -10,7 +10,14 @@ const GestureRecognizer = ({ onResults }) => {
   const canvasRef = useRef(null);
   const handsRef = useRef(null);
   const animationFrameRef = useRef(null);
+  const lastProcessingTime = useRef(0);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Use a ref for onResults to avoid re-initializing the effect when the callback changes
+  const onResultsRef = useRef(onResults);
+  useEffect(() => {
+    onResultsRef.current = onResults;
+  }, [onResults]);
 
   // Drawing logic moved to a ref-based function to prevent re-renders
   const drawResults = (results) => {
@@ -62,7 +69,7 @@ const GestureRecognizer = ({ onResults }) => {
     hands.setOptions({
       maxNumHands: 1,
       modelComplexity: 0, // 0 = Lite (Fastest), 1 = Full
-      minDetectionConfidence: 0.5, // Slightly lower for faster detection
+      minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
 
@@ -73,8 +80,8 @@ const GestureRecognizer = ({ onResults }) => {
       
       drawResults(results);
 
-      if (onResults) {
-        onResults(results);
+      if (onResultsRef.current) {
+        onResultsRef.current(results);
       }
     });
 
@@ -104,9 +111,13 @@ const GestureRecognizer = ({ onResults }) => {
 
     const processFrame = async () => {
       if (videoRef.current && handsRef.current) {
-        // Downscale to 320x240 for AI processing ONLY
-        // MediaPipe handles internal scaling but providing a smaller source can be faster
-        await handsRef.current.send({ image: videoRef.current });
+        const now = Date.now();
+        // Throttle AI processing to ~20 FPS (every 50ms) to save CPU/battery
+        // while keeping the UI responsive.
+        if (now - lastProcessingTime.current >= 50) {
+          await handsRef.current.send({ image: videoRef.current });
+          lastProcessingTime.current = now;
+        }
       }
       animationFrameRef.current = requestAnimationFrame(processFrame);
     };
@@ -121,21 +132,29 @@ const GestureRecognizer = ({ onResults }) => {
         videoRef.current.srcObject.getTracks().forEach(track => track.stop());
       }
     };
-  }, [onResults]);
+  }, []); // Only run once on mount
+
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto overflow-hidden rounded-2xl shadow-2xl border-4 border-indigo-500 bg-gray-900 aspect-video">
+    <div className="relative w-full h-full overflow-hidden bg-slate-900 rounded-[2.2rem]">
       <video ref={videoRef} className="hidden" playsInline muted />
+      
+      {/* Main Canvas with Mirroring handled in JS draw loop */}
+      {/* object-cover ensures the video fills the rounded window without black bars */}
       <canvas ref={canvasRef} className="w-full h-full object-cover" width={640} height={480} />
 
       {isLoading && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 bg-opacity-80 z-10">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/80 z-10 backdrop-blur-sm">
           <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-white font-bold tracking-widest animate-pulse uppercase">Initializing AI...</p>
+          <p className="text-white font-black tracking-widest animate-pulse uppercase text-sm">Initializing...</p>
         </div>
       )}
     </div>
   );
 };
+
+
+
+
 
 export default GestureRecognizer;

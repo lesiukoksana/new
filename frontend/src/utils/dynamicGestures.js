@@ -961,11 +961,11 @@ export class GestureTracker_Д {
     this.cooldownTimer = 0;
 
     // Configuration
-    this.BUFFER_SIZE = 30;           // Enough frames to complete a circle
-    this.MIN_CIRCLE_DIAMETER = 0.05; // Minimum size for the loop
-    this.LOOP_CLOSURE_RATIO = 0.5;   // Start-to-end distance must be < 50% of bounding box diameter
-    this.LATCH_FRAMES = 40;
-    this.COOLDOWN_FRAMES = 20;
+    this.BUFFER_SIZE = 18;           // Reduced from 30 for much faster detection
+    this.MIN_CIRCLE_DIAMETER = 0.04; // Slightly more sensitive
+    this.LOOP_CLOSURE_RATIO = 0.6;   // More lenient closure (60% vs 50%)
+    this.LATCH_FRAMES = 30;
+    this.COOLDOWN_FRAMES = 15;
   }
 
   /**

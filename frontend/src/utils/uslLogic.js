@@ -21,7 +21,7 @@ const zeTracker = new DynamicGesture_З();
 /**
  * Static Pose for Letter 'И' (Pinky and Ring UP) and base for 'Й'.
  */
-const checkYI_Pose = (landmarks) => {
+export const checkYI_Pose = (landmarks) => {
   const result = yjTracker.checkPose_И(landmarks);
   return {
     isCorrect: result,
@@ -34,7 +34,7 @@ const checkYI_Pose = (landmarks) => {
   };
 };
 
-const checkA = (landmarks) => {
+export const checkA = (landmarks) => {
   const wrist = landmarks[0];
   const fingers = [{ tip: 8, pip: 6 }, { tip: 12, pip: 10 }, { tip: 16, pip: 14 }, { tip: 20, pip: 18 }];
   const allTipsFolded = fingers.every(f => getDistance(landmarks[f.tip], wrist) < getDistance(landmarks[f.pip], wrist));
@@ -43,7 +43,7 @@ const checkA = (landmarks) => {
   return createResult(false, 0.4, 'Зімкніть пальці у кулак');
 };
 
-const checkB = (landmarks) => {
+export const checkB = (landmarks) => {
   const wrist = landmarks[0];
   const knucklesZ = (landmarks[5].z + landmarks[9].z + landmarks[13].z + landmarks[17].z) / 4;
   
@@ -97,7 +97,7 @@ const checkB = (landmarks) => {
   return createResult(false, 0.5, 'Зігніть великий палець "гачком" до середнього');
 };
 
-const checkV = (landmarks) => {
+export const checkV = (landmarks) => {
   const indexTip = landmarks[8];
   const pinkyTip = landmarks[20];
   const fingers = [{ tip: 8, pip: 6 }, { tip: 12, pip: 10 }, { tip: 16, pip: 14 }, { tip: 20, pip: 18 }];
@@ -108,20 +108,20 @@ const checkV = (landmarks) => {
   return createResult(true, 1.0, 'Чудово! Літера "В".');
 };
 
-const checkG = (landmarks) => {
+export const checkG = (landmarks) => {
   const res = geTracker.update(landmarks);
   if (res && (res.detected === 'Г' || res.detected === 'Ґ')) return createResult(true, 1.0, 'Правильно! Літера "Г".');
   return createResult(false, 0.3, 'Вказівний вниз, великий убік');
 };
 
-const checkGE = (landmarks) => {
+export const checkGE = (landmarks) => {
   const res = geTracker.update(landmarks);
   if (res && res.detected === 'Ґ') return createResult(true, 1.0, 'Чудово! Літера "Ґ" — рух виконано.', true);
   if (res && res.detected === 'Г') return createResult(false, 0.5, 'Тепер зробіть рух вгору-вниз (підстрибування)');
   return createResult(false, 0.4, 'Сформуйте позу "Г" та зробіть рух вгору-вниз');
 };
 
-const checkD = (landmarks) => {
+export const checkD = (landmarks) => {
   const res = dTracker.update(landmarks);
   if (res && res.detected === 'Д') return createResult(true, 1.0, 'Чудово! Літера "Д" — рух виконано.', true);
   
@@ -130,7 +130,7 @@ const checkD = (landmarks) => {
   return createResult(false, 0.4, 'Випряміть вказівний та середній разом вгору і зробіть коло');
 };
 
-const checkE = (landmarks) => {
+export const checkE = (landmarks) => {
   const wrist = landmarks[0];
   const tips = [8, 12, 16, 20];
   const pips = [6, 10, 14, 18];
@@ -167,7 +167,7 @@ const checkE = (landmarks) => {
   return createResult(false, 0.5, 'Заховайте великий палець під зігнуті пальці');
 };
 
-const checkYE = (landmarks) => {
+export const checkYE = (landmarks) => {
   const thumbTip = landmarks[4];
   const indexTip = landmarks[8];
   const indexMcp = landmarks[5];
@@ -213,7 +213,7 @@ const checkYE = (landmarks) => {
   return createResult(false, 0.4, 'Сформуйте дугу вказівним та великим пальцями');
 };
 
-const checkZH = (landmarks) => {
+export const checkZH = (landmarks) => {
   const wrist = landmarks[0];
   const thumbTip = landmarks[4];
   const fingerTips = [8, 12, 16, 20];
@@ -257,7 +257,7 @@ const checkZH = (landmarks) => {
   return createResult(false, 0.6, 'Сформуйте чіткий "дзьобик" усіма пальцями');
 };
 
-const checkZ = (landmarks) => {
+export const checkZ = (landmarks) => {
   const res = zeTracker.update(landmarks);
   if (res && res.detected === 'З') return createResult(true, 1.0, 'Чудово! Літера "З" — рух виконано.', true);
   
@@ -266,25 +266,25 @@ const checkZ = (landmarks) => {
   return createResult(false, 0.4, 'Зігніть вказівний "гачком" та намалюйте "3"');
 };
 
-const checkI = (landmarks) => {
+export const checkI = (landmarks) => {
   if (isFingerExtended(landmarks, 1) && !isFingerExtended(landmarks, 2) && !isFingerExtended(landmarks, 3) && !isFingerExtended(landmarks, 4)) return createResult(true, 1.0, 'Відмінно! Літера "І".');
   return createResult(false, 0.4, 'Випряміть вказівний палець вгору');
 };
 
-const checkYI = (landmarks) => {
+export const checkYI = (landmarks) => {
   const res = yjTracker.update(landmarks);
   if (res && res.detected === 'И') return createResult(true, 1.0, 'Правильно! Літера "И".');
   return createResult(false, 0.4, 'Підніміть безіменний та мізинець вгору');
 };
 
-const checkYJ = (landmarks) => {
+export const checkYJ = (landmarks) => {
   const res = yjTracker.update(landmarks);
   if (res && res.detected === 'Й') return createResult(true, 1.0, 'Чудово! Літера "Й" — рух виконано.', true);
   if (res && res.detected === 'И') return createResult(false, 0.5, 'Тепер намалюйте в повітрі невеличку дугу (˘)');
   return createResult(false, 0.4, 'Сформуйте позу "И" та зробіть рух дугою');
 };
 
-const checkK = (landmarks) => {
+export const checkK = (landmarks) => {
   const res = kaTracker.update(landmarks);
   if (res && res.detected === 'К') return createResult(true, 1.0, 'Чудово! Літера "К" — рух виконано.', true);
   
@@ -294,67 +294,89 @@ const checkK = (landmarks) => {
 };
 
 
-const checkX = (landmarks) => {
+export const checkT = (landmarks) => {
+  const wrist = landmarks[0];
+  const thumbTip = landmarks[4];
+  const indexPip = landmarks[6];
+  const middlePip = landmarks[10];
+
+  // 1. Fist Pose Check: Index, Middle, Ring, Pinky folded
+  const f8 = landmarks[8].y > landmarks[6].y;
+  const f12 = landmarks[12].y > landmarks[10].y;
+  const f16 = landmarks[16].y > landmarks[14].y;
+  const f20 = landmarks[20].y > landmarks[18].y;
+
+  // 2. Thumb Position: Over Index and Middle joints
+  const thumbNearIndex = getDistance(thumbTip, indexPip) < 0.12;
+  const thumbNearMiddle = getDistance(thumbTip, middlePip) < 0.12;
+
+  if (f8 && f12 && f16 && f20 && (thumbNearIndex || thumbNearMiddle)) {
+    return createResult(true, 1.0, 'Правильно! Літера "Т".');
+  }
+  return createResult(false, 0.4, 'Стисніть руку в кулак, великий палець зверху');
+};
+
+export const checkX = (landmarks) => {
   if (landmarks[8].y > landmarks[6].y && landmarks[6].y < landmarks[5].y) return createResult(true, 1.0, 'Правильно! Літера "Х".');
   return createResult(false, 0.3, 'Зігніть вказівний "гачком"');
 };
 
-const checkF = (landmarks) => {
+export const checkF = (landmarks) => {
   if (landmarks[4].y < landmarks[3].y && getDistance(landmarks[8], landmarks[5]) > 0.1) return createResult(true, 1.0, 'Чудово! Літера "Ф".');
   return createResult(false, 0.4, 'Великий вгору, інші вперед');
 };
 
-const checkO = (landmarks) => {
+export const checkO = (landmarks) => {
   if (getDistance(landmarks[4], landmarks[8]) < 0.1) return createResult(true, 1.0, 'Чудово! Літера "О".');
   return createResult(false, 0.5, 'З’єднайте вказівний та великий у кільце');
 };
 
-const checkU = (landmarks) => {
+export const checkU = (landmarks) => {
   if (isFingerExtended(landmarks, 0) && isFingerExtended(landmarks, 4) && !isFingerExtended(landmarks, 1)) return createResult(true, 1.0, 'Супер! Це літера У');
   return createResult(false, 0.5, 'Випряміть великий та мізинець');
 };
 
-const checkM = (landmarks) => {
+export const checkM = (landmarks) => {
   if (landmarks[8].y > landmarks[5].y && landmarks[12].y > landmarks[9].y && landmarks[16].y > landmarks[13].y) return createResult(true, 1.0, 'Правильно! Літера "М".');
   return createResult(false, 0.4, 'Три пальці вниз');
 };
 
-const checkN = (landmarks) => {
+export const checkN = (landmarks) => {
   const wrist = landmarks[0];
   if (landmarks[8].y < landmarks[5].y && landmarks[12].y < landmarks[9].y && getDistance(landmarks[16], wrist) < getDistance(landmarks[14], wrist) + 0.05) return createResult(true, 1.0, 'Правильно! Літера "Н".');
   return createResult(false, 0.4, 'Три пальці вгору');
 };
 
-const checkC = (landmarks) => {
+export const checkC = (landmarks) => {
   const wrist = landmarks[0];
   if ([8, 12, 16, 20].every(idx => getDistance(landmarks[idx], wrist) < 0.35 && getDistance(landmarks[idx], wrist) > 0.15)) return createResult(true, 1.0, 'Супер! Літера "С".');
   return createResult(false, 0.5, 'Зігніть долоню "дужкою"');
 };
 
-const checkL = (landmarks) => {
+export const checkL = (landmarks) => {
   if (landmarks[8].y > landmarks[5].y && landmarks[12].y > landmarks[9].y) return createResult(true, 1.0, 'Чудово! Літера "Л".');
   return createResult(false, 0.4, 'Вказівний та середній вниз');
 };
 
-const checkP = (landmarks) => {
+export const checkP = (landmarks) => {
   if (landmarks[8].y > landmarks[5].y && getDistance(landmarks[8], landmarks[12]) < 0.08) return createResult(true, 1.0, 'Правильно! Літера "П".');
   return createResult(false, 0.4, 'Два пальці вниз разом');
 };
 
-const checkSH = (landmarks) => {
+export const checkSH = (landmarks) => {
   const res = shchTracker.update(landmarks);
   if (res && (res.detected === 'Ш' || res.detected === 'Щ')) return createResult(true, 1.0, 'Чудово! Літера "Ш".');
   return createResult(false, 0.3, 'Випряміть три пальці вгору разом');
 };
 
-const checkSHCH = (landmarks) => {
+export const checkSHCH = (landmarks) => {
   const res = shchTracker.update(landmarks);
   if (res && res.detected === 'Щ') return createResult(true, 1.0, 'Чудово! Літера "Щ" — рух виконано.', true);
   if (res && res.detected === 'Ш') return createResult(false, 0.5, 'Тепер зробіть рух вгору-вниз (підстрибування)');
   return createResult(false, 0.4, 'Сформуйте позу "Ш" та зробіть рух вгору-вниз');
 };
 
-const checkTSE = (landmarks) => {
+export const checkTSE = (landmarks) => {
   const res = tseTracker.update(landmarks);
   if (res && res.detected === 'Ц') return createResult(true, 1.0, 'Чудово! Літера "Ц" — рух виконано.', true);
   
@@ -363,7 +385,7 @@ const checkTSE = (landmarks) => {
   return createResult(false, 0.4, 'Випряміть вказівний та середній разом вгору і зробіть рух');
 };
 
-const checkR = (landmarks) => {
+export const checkR = (landmarks) => {
   const thumbTip = landmarks[4];
   const middleTip = landmarks[12];
   const indexTip = landmarks[8];
@@ -398,12 +420,12 @@ const checkR = (landmarks) => {
   return createResult(false, 0.6, 'З’єднайте середній з великим, інші три вгору');
 };
 
-const checkCH = (landmarks) => {
+export const checkCH = (landmarks) => {
   if (getDistance(landmarks[4], landmarks[8]) < 0.12 && getDistance(landmarks[4], landmarks[12]) < 0.12) return createResult(true, 1.0, 'Правильно! Літера "Ч".');
   return createResult(false, 0.4, 'Три пальці в "дзьобик"');
 };
 
-const checkYU = (landmarks) => {
+export const checkYU = (landmarks) => {
   const thumbTip = landmarks[4];
   const pinkyTip = landmarks[20];
   const pinkyPip = landmarks[18];
@@ -430,7 +452,7 @@ const checkYU = (landmarks) => {
   return createResult(false, 0.5, 'Тримайте мізинець вгору, а інші пальці у "дзьобик"');
 };
 
-const checkSOFT = (landmarks) => {
+export const checkSOFT = (landmarks) => {
   const res = softTracker.update(landmarks);
   if (res && res.detected === 'Ь') return createResult(true, 1.0, 'Чудово! М’який знак — рух виконано.', true);
   
@@ -439,7 +461,7 @@ const checkSOFT = (landmarks) => {
   return createResult(false, 0.4, 'Вказівний вгору, великий убік (L-форма) та зробіть рух');
 };
 
-const checkYA = (landmarks) => {
+export const checkYA = (landmarks) => {
   const indexTip = landmarks[8];
   const middleTip = landmarks[12];
   const indexMcp = landmarks[5];
@@ -476,11 +498,23 @@ const checkYA = (landmarks) => {
   return createResult(false, 0.5, 'Схрестіть пальці, інші притисніть до долоні');
 };
 
-const checkYI_DoubleDot = (landmarks) => {
+export const checkYI_DoubleDot = (landmarks) => {
   const res = yiDoubleDotTracker.update(landmarks);
   if (res && res.detected === 'Ї') return createResult(true, 1.0, 'Чудово! Літера "Ї" — рух виконано.', true);
   if (res && res.detected === 'І') return createResult(false, 0.5, 'Тепер зробіть рух з боку в бік (тремтіння)');
   return createResult(false, 0.4, 'Сформуйте позу "І" та зробіть рух з боку в бік');
+};
+
+export const resetTrackers = () => {
+  yjTracker.reset();
+  yiDoubleDotTracker.reset();
+  geTracker.reset();
+  shchTracker.reset();
+  tseTracker.reset();
+  softTracker.reset();
+  kaTracker.reset();
+  dTracker.reset();
+  zeTracker.reset();
 };
 
 export const checkGesture = (landmarks, targetLetter) => {

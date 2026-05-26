@@ -10,6 +10,15 @@ const WordGame = () => {
   const [uiState, setUiState] = useState(gameManager.getUIState());
   const [showConfetti, setShowConfetti] = useState(false);
   
+  // Latin mapping for video filenames (matching server.js)
+  const charMap = {
+    'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'H', 'Ґ': 'G', 'Д': 'D', 'Е': 'E', 'Є': 'Ye',
+    'Ж': 'Zh', 'З': 'Z', 'И': 'Y', 'І': 'I', 'Ї': 'Yi', 'Й': 'Yj', 'К': 'K', 'Л': 'L',
+    'М': 'M', 'Н': 'N', 'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U',
+    'Ф': 'F', 'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Shch', 'Ь': 'Soft',
+    'Ю': 'Yu', 'Я': 'Ya'
+  };
+
   // Refs for performance timing and state tracking
   const lastStateUpdate = useRef(0);
 
@@ -51,6 +60,9 @@ const WordGame = () => {
     setShowConfetti(false);
   };
 
+  const targetLetter = uiState.currentPrompt.split(': ')[1] || '';
+  const videoUrl = targetLetter ? `/videos/video${charMap[targetLetter] || targetLetter}.mp4` : null;
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col">
       <header className="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
@@ -69,7 +81,7 @@ const WordGame = () => {
         <div className="w-full flex flex-col lg:flex-row gap-12 items-center justify-center">
             {/* Left Side: Camera & Interaction */}
             <div className="w-full lg:w-2/3 flex flex-col gap-6">
-                <div className="relative rounded-[3rem] overflow-hidden shadow-2xl bg-black aspect-video group">
+                <div className="relative rounded-[3rem] overflow-hidden shadow-2xl bg-slate-900 aspect-video group border-[12px] border-white shadow-indigo-100/50">
                     <GestureRecognizer onResults={onGestureResults} />
                     
                     {/* Overlay UI */}
@@ -88,7 +100,7 @@ const WordGame = () => {
                                 onClick={handleStart}
                                 className="bg-white text-indigo-600 px-12 py-6 rounded-3xl font-black text-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all"
                             >
-                                ПОЧАТИ ГРУ
+                                СТАРТ
                             </button>
                         </div>
                     )}

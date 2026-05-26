@@ -139,7 +139,13 @@ const LearningModule = () => {
         }
       }
 
-      // Logic: hold for real-time seconds
+      // Logic: Dynamic gestures are immediate successes once triggered
+      if (result.isCorrect && result.isDynamic) {
+        handleSuccess(result.score);
+        return;
+      }
+
+      // Logic: hold for real-time seconds (for static poses)
       if (result.score >= 0.7) { 
         setHoldFrames(prev => {
           const next = prev + effectiveDelta;
@@ -274,7 +280,7 @@ const LearningModule = () => {
                     <div className="p-8">
                         <h4 className="text-5xl font-black text-indigo-900 mb-4 text-center">"{gesture.character}"</h4>
                         <p className="text-slate-500 text-sm font-medium leading-relaxed text-center">
-                            Повторюйте рухи за інструктором на відео. Наша нейромережа в реальному часі оцінює вашу точність.
+                            Повторюйте рухи за інструктором на відео.
                         </p>
                     </div>
                 </div>
