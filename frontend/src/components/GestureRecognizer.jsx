@@ -10,13 +10,7 @@ const GestureRecognizer = ({ onResults }) => {
   const canvasRef = useRef(null);
   const handsRef = useRef(null);
   const animationFrameRef = useRef(null);
-  const onResultsRef = useRef(onResults);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Update the ref whenever onResults changes without triggering useEffect
-  useEffect(() => {
-    onResultsRef.current = onResults;
-  }, [onResults]);
 
   // Drawing logic moved to a ref-based function to prevent re-renders
   const drawResults = (results) => {
@@ -35,30 +29,8 @@ const GestureRecognizer = ({ onResults }) => {
     canvasCtx.translate(canvasElement.width, 0);
     canvasCtx.scale(-1, 1);
 
-    // Draw video frame with proper aspect ratio covering
-    const videoWidth = results.image.width;
-    const videoHeight = results.image.height;
-    const canvasWidth = canvasElement.width;
-    const canvasHeight = canvasElement.height;
-    
-    const videoAspect = videoWidth / videoHeight;
-    const canvasAspect = canvasWidth / canvasHeight;
-
-    let drawWidth, drawHeight, offsetX, offsetY;
-
-    if (videoAspect > canvasAspect) {
-      drawHeight = canvasHeight;
-      drawWidth = canvasHeight * videoAspect;
-      offsetX = (canvasWidth - drawWidth) / 2;
-      offsetY = 0;
-    } else {
-      drawWidth = canvasWidth;
-      drawHeight = canvasWidth / videoAspect;
-      offsetX = 0;
-      offsetY = (canvasHeight - drawHeight) / 2;
-    }
-
-    canvasCtx.drawImage(results.image, offsetX, offsetY, drawWidth, drawHeight);
+    // Draw video frame
+    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
     if (results.multiHandLandmarks) {
       for (const landmarks of results.multiHandLandmarks) {
@@ -89,8 +61,8 @@ const GestureRecognizer = ({ onResults }) => {
 
     hands.setOptions({
       maxNumHands: 1,
-      modelComplexity: 1, 
-      minDetectionConfidence: 0.5,
+      modelComplexity: 0, // 0 = Lite (Fastest), 1 = Full
+      minDetectionConfidence: 0.5, // Slightly lower for faster detection
       minTrackingConfidence: 0.5,
     });
 
@@ -101,8 +73,8 @@ const GestureRecognizer = ({ onResults }) => {
       
       drawResults(results);
 
-      if (onResultsRef.current) {
-        onResultsRef.current(results);
+      if (onResults) {
+        onResults(results);
       }
     });
 
@@ -112,8 +84,8 @@ const GestureRecognizer = ({ onResults }) => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { 
-            width: { ideal: 1280 }, 
-            height: { ideal: 720 },
+            width: { ideal: 640 }, 
+            height: { ideal: 480 },
             frameRate: { ideal: 30 }
           },
         });
@@ -131,39 +103,30 @@ const GestureRecognizer = ({ onResults }) => {
     };
 
     const processFrame = async () => {
-      if (videoRef.current && handsRef.current && videoRef.current.readyState >= 2) {
-        try {
-          await handsRef.current.send({ image: videoRef.current });
-        } catch (e) {
-          console.error('MediaPipe send error:', e);
-        }
+      if (videoRef.current && handsRef.current) {
+        // Downscale to 320x240 for AI processing ONLY
+        // MediaPipe handles internal scaling but providing a smaller source can be faster
+        await handsRef.current.send({ image: videoRef.current });
       }
-      
-      if (handsRef.current) {
-        animationFrameRef.current = requestAnimationFrame(processFrame);
-      }
+      animationFrameRef.current = requestAnimationFrame(processFrame);
     };
+
 
     startCamera();
 
     return () => {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      if (handsRef.current) {
-        const h = handsRef.current;
-        handsRef.current = null;
-        h.close();
-      }
+      if (handsRef.current) handsRef.current.close();
       if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject;
-        stream.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
       }
     };
-  }, []); // Empty dependency array means this only runs once
+  }, [onResults]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-gray-900">
+    <div className="relative w-full max-w-2xl mx-auto overflow-hidden rounded-2xl shadow-2xl border-4 border-indigo-500 bg-gray-900 aspect-video">
       <video ref={videoRef} className="hidden" playsInline muted />
-      <canvas ref={canvasRef} className="w-full h-full object-cover" width={1280} height={720} />
+      <canvas ref={canvasRef} className="w-full h-full object-cover" width={640} height={480} />
 
       {isLoading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 bg-opacity-80 z-10">
