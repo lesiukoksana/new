@@ -10,9 +10,20 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your_fallback_secret';
 
-// Middleware
-app.use(cors());
+// === НАЛАШТУВАННЯ CORS ===
+// Дозволяємо запити з будь-яких доменів, щоб твій окремий фронтенд міг спілкуватися з цим API
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
+
+// === СЛУЖБОВИЙ МАРШРУТ ДЛЯ ПЕРЕВІРКИ СЕРВЕРА ===
+app.get('/', (req, res) => {
+  res.json({ message: "Welcome! USL Backend is working smoothly. Databases and API routes are live." });
+});
 
 // Auth Middleware
 const authenticateToken = (req, res, next) => {
