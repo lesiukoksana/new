@@ -1,5 +1,5 @@
 const express = require('express');
-const sqlite3 = require('@vscode/sqlite3').verbose();
+const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcryptjs');
